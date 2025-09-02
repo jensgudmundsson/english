@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swedish-English Crossword Practice</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .controls {
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .word-list-section {
+            padding: 20px;
+            background: white;
+        }
+
+        .word-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .word-card {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .word-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border-color: #4facfe;
+        }
+
+        .word-card h3 {
+            color: #495057;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .word-card p {
+            color: #6c757d;
+            font-size: 1rem;
+        }
+
+        .crossword-section {
+            padding: 20px;
+            background: white;
+            display: none;
+        }
+
+        .crossword-container {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .crossword-grid {
+            border: 2px solid #333;
+            background: white;
+            display: inline-block;
+        }
+
+        .crossword-row {
+            display: flex;
+        }
+
+        .crossword-cell {
+            width: 40px;
+            height: 40px;
+            border: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            text-transform: uppercase;
+            background: white;
+        }
+
+        .crossword-cell.black {
+            background: #333;
+            border-color: #333;
+        }
+
+        .crossword-cell input {
+            width: 100%;
+            height: 100%;
+            border: none;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            text-transform: uppercase;
+            background: transparent;
+        }
+
+        .crossword-cell input:focus {
+            outline: 2px solid #4facfe;
+            background: #f0f8ff;
+        }
+
+        .crossword-clues {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .clues-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .clues-section h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .clue-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 8px;
+            transition: background 0.2s ease;
+        }
+
+        .clue-item:hover {
+            background: #e9ecef;
+        }
+
+        .clue-number {
+            background: #4facfe;
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .clue-text {
+            color: #495057;
+            font-size: 1rem;
+        }
+
+        .stats {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .stats h3 {
+            color: #495057;
+            margin-bottom: 15px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4facfe;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .success-message {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .word-manager-section {
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .word-manager-section h2 {
+            color: #495057;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .word-manager-controls {
+            margin-bottom: 20px;
+        }
+
+        .add-word-form {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .form-input {
+            padding: 10px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            min-width: 200px;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #4facfe;
+        }
+
+        .custom-word-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .custom-word-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .custom-word-card:hover {
+            border-color: #4facfe;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .custom-word-info h4 {
+            color: #495057;
+            margin-bottom: 5px;
+        }
+
+        .custom-word-info p {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .remove-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .remove-btn:hover {
+            background: #c82333;
+            transform: scale(1.05);
+        }
+
+        .crossword-cell.active-word {
+            background: #e0f7fa; /* Light blue background for active word */
+            border-color: #4facfe; /* Highlight border */
+            box-shadow: 0 0 10px rgba(79, 162, 238, 0.5); /* Subtle shadow */
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .crossword-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .crossword-cell {
+                width: 35px;
+                height: 35px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🇸🇪 Swedish-English Crossword 🇬🇧</h1>
+            <p>Practice your Swedish vocabulary with interactive crosswords!</p>
+        </div>
+
+        <div class="controls">
+            <button class="btn" onclick="generateCrossword()">Generate New Crossword</button>
+            <button class="btn btn-secondary" onclick="checkAnswers()">Check Answers</button>
+            <button class="btn" onclick="showWordList()">Show Word List</button>
+            <button class="btn" onclick="hideWordList()">Hide Word List</button>
+            <button class="btn" onclick="showWordManager()">Manage Words</button>
+        </div>
+
+        <div class="word-list-section" id="wordListSection">
+            <h2>Vocabulary List</h2>
+            <div class="word-list" id="wordList"></div>
+        </div>
+
+        <div class="crossword-section" id="crosswordSection">
+            <div class="crossword-container">
+                <div id="crosswordGrid"></div>
+                <div class="crossword-clues">
+                    <div class="clues-section">
+                        <h3>Across</h3>
+                        <div id="acrossClues"></div>
+                    </div>
+                    <div class="clues-section">
+                        <h3>Down</h3>
+                        <div id="downClues"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stats" id="stats">
+                <h3>Progress</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalWords">0</div>
+                        <div class="stat-label">Total Words</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="completedWords">0</div>
+                        <div class="stat-label">Completed</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="accuracy">0%</div>
+                        <div class="stat-label">Accuracy</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="success-message" id="successMessage">
+                <h3>🎉 Congratulations! 🎉</h3>
+                <p>You've completed the crossword! Great job practicing your Swedish vocabulary!</p>
+            </div>
+        </div>
+        
+        <div class="word-manager-section" id="wordManagerSection" style="display: none;">
+            <h2>Manage Your Word List</h2>
+            <div class="word-manager-controls">
+                <div class="add-word-form">
+                    <input type="text" id="newSwedish" placeholder="Swedish word" class="form-input">
+                    <input type="text" id="newEnglish" placeholder="English translation" class="form-input">
+                    <button class="btn" onclick="addWord()">Add Word</button>
+                </div>
+            </div>
+            <div class="custom-word-list" id="customWordList"></div>
+        </div>
+    </div>
+
+    <script>
+        // Default Swedish-English vocabulary list
+        let defaultVocabulary = [
+            { swedish: "det", english: "this" },
+            { swedish: "här", english: "here" },
+            { swedish: "är", english: "is" },
+            { swedish: "tre", english: "three" },
+            { swedish: "barn", english: "children" },
+            { swedish: "fem", english: "five" },
+            { swedish: "husdjur", english: "pets" },
+            { swedish: "dotter", english: "daughter" },
+            { swedish: "liten", english: "little" },
+            { swedish: "bror", english: "brother" },
+            { swedish: "gullig", english: "cute" },
+            { swedish: "föddes", english: "born" },
+            { swedish: "stort", english: "big" },
+            { swedish: "gammalt", english: "old" },
+            { swedish: "hus", english: "house" },
+            { swedish: "var", english: "where" }
+        ];
+
+        // Combined vocabulary (default + custom words)
+        let vocabulary = [...defaultVocabulary];
+
+        let currentCrossword = null;
+        let crosswordData = null;
+        let currentDirection = 'horizontal';
+
+        // Initialize the application
+        function init() {
+            loadCustomWords();
+            displayWordList();
+            displayCustomWordList();
+            generateCrossword();
+        }
+
+        // Display the vocabulary list
+        function displayWordList() {
+            const wordList = document.getElementById('wordList');
+            wordList.innerHTML = '';
+            
+            vocabulary.forEach(word => {
+                const wordCard = document.createElement('div');
+                wordCard.className = 'word-card';
+                wordCard.innerHTML = `
+                    <h3>${word.swedish}</h3>
+                    <p><strong>English:</strong> ${word.english}</p>
+                `;
+                wordList.appendChild(wordCard);
+            });
+        }
+
+        // Show/hide word list
+        function showWordList() {
+            document.getElementById('wordListSection').style.display = 'block';
+            document.getElementById('crosswordSection').style.display = 'none';
+            document.getElementById('wordManagerSection').style.display = 'none';
+        }
+
+        function hideWordList() {
+            document.getElementById('wordListSection').style.display = 'none';
+            document.getElementById('crosswordSection').style.display = 'block';
+            document.getElementById('wordManagerSection').style.display = 'none';
+        }
+
+        function showWordManager() {
+            document.getElementById('wordListSection').style.display = 'none';
+            document.getElementById('crosswordSection').style.display = 'none';
+            document.getElementById('wordManagerSection').style.display = 'block';
+            displayCustomWordList();
+        }
+
+        // Generate a new crossword
+        function generateCrossword() {
+            // Select random words for the crossword (more words for larger crosswords)
+            const selectedWords = getRandomWords(10, 14);
+            currentCrossword = createCrossword(selectedWords);
+            displayCrossword(currentCrossword);
+            updateStats();
+            
+            // Hide success message
+            document.getElementById('successMessage').style.display = 'none';
+            
+            document.getElementById('wordListSection').style.display = 'none';
+            document.getElementById('crosswordSection').style.display = 'block';
+        }
+
+        // Get random words from vocabulary
+        function getRandomWords(min, max) {
+            const shuffled = [...vocabulary].sort(() => 0.5 - Math.random());
+            const count = Math.floor(Math.random() * (max - min + 1)) + min;
+            return shuffled.slice(0, count);
+        }
+
+        // Create crossword data structure
+        function createCrossword(words) {
+            const grid = [];
+            const size = 20;
+            
+            // Initialize empty grid
+            for (let i = 0; i < size; i++) {
+                grid[i] = [];
+                for (let j = 0; j < size; j++) {
+                    grid[i][j] = { char: '', wordId: null, isStart: false };
+                }
+            }
+
+            const placedWords = [];
+            let wordId = 0;
+
+            // Place first word in the center
+            if (words.length > 0) {
+                const firstWord = words[0];
+                const centerRow = Math.floor(size / 2);
+                const centerCol = Math.floor((size - firstWord.english.length) / 2);
+                
+                placeWordOnGrid(grid, firstWord.english.toUpperCase(), centerRow, centerCol, 'horizontal', wordId);
+                placedWords.push({
+                    id: wordId,
+                    word: firstWord.english,
+                    swedish: firstWord.swedish,
+                    startRow: centerRow,
+                    startCol: centerCol,
+                    direction: 'horizontal',
+                    length: firstWord.english.length
+                });
+                wordId++;
+            }
+
+            // Try to place remaining words by intersecting with placed words
+            for (let i = 1; i < words.length; i++) {
+                const word = words[i];
+                const placed = placeWordWithIntersection(grid, word, wordId, placedWords);
+                if (placed) {
+                    placedWords.push({
+                        id: wordId,
+                        word: word.english,
+                        swedish: word.swedish,
+                        startRow: placed.startRow,
+                        startCol: placed.startCol,
+                        direction: placed.direction,
+                        length: word.english.length
+                    });
+                    wordId++;
+                }
+            }
+
+            // Trim the grid to remove empty rows and columns
+            const trimmedGrid = trimGrid(grid, placedWords);
+            
+            return {
+                grid: trimmedGrid.grid,
+                words: trimmedGrid.words,
+                size: trimmedGrid.size
+            };
+        }
+
+        // Place a word on the grid
+        function placeWordWithIntersection(grid, word, wordId, placedWords) {
+            const wordText = word.english.toUpperCase();
+            const maxAttempts = 200;
+            let attempts = 0;
+
+            while (attempts < maxAttempts) {
+                const direction = Math.random() < 0.5 ? 'horizontal' : 'vertical';
+                
+                // Try to find a valid intersection with existing words
+                const placement = findValidIntersection(grid, wordText, direction, placedWords);
+                
+                if (placement) {
+                    placeWordOnGrid(grid, wordText, placement.startRow, placement.startCol, direction, wordId);
+                    return {
+                        startRow: placement.startRow,
+                        startCol: placement.startCol,
+                        direction: direction
+                    };
+                }
+                attempts++;
+            }
+            return null;
+        }
+
+        // Check if a word can be placed
+        function canPlaceWord(grid, word, startRow, startCol, direction) {
+            // Check immediate boundary before the word
+            if (direction === 'horizontal') {
+                if (startCol > 0 && grid[startRow][startCol - 1].char !== '') {
+                    return false;
+                }
+            } else {
+                if (startRow > 0 && grid[startRow - 1][startCol].char !== '') {
+                    return false;
+                }
+            }
+
+            // Check each letter fits (and matching if crossing)
+            for (let i = 0; i < word.length; i++) {
+                const row = direction === 'horizontal' ? startRow : startRow + i;
+                const col = direction === 'horizontal' ? startCol + i : startCol;
+
+                if (row < 0 || row >= grid.length || col < 0 || col >= grid[0].length) {
+                    return false;
+                }
+
+                const cell = grid[row][col];
+                if (cell.char !== '' && cell.char !== word[i]) {
+                    return false;
+                }
+            }
+
+            // Check immediate boundary after the word
+            if (direction === 'horizontal') {
+                const endCol = startCol + word.length;
+                if (endCol < grid[0].length && grid[startRow][endCol].char !== '') {
+                    return false;
+                }
+            } else {
+                const endRow = startRow + word.length;
+                if (endRow < grid.length && grid[endRow][startCol].char !== '') {
+                    return false;
+                }
+            }
+
+            // Perpendicular adjacency rule: prevent side-by-side touching without crossing
+            if (direction === 'horizontal') {
+                for (let i = 0; i < word.length; i++) {
+                    const row = startRow;
+                    const col = startCol + i;
+                    // above/below can only be non-empty if this cell already has that crossing
+                    const above = row > 0 ? grid[row - 1][col] : null;
+                    const below = row + 1 < grid.length ? grid[row + 1][col] : null;
+                    if ((above && above.char !== '' && grid[row][col].char === '') ||
+                        (below && below.char !== '' && grid[row][col].char === '')) {
+                        // touching alongside without true crossing (this cell would be empty)
+                        return false;
+                    }
+                }
+            } else {
+                for (let i = 0; i < word.length; i++) {
+                    const row = startRow + i;
+                    const col = startCol;
+                    const left = col > 0 ? grid[row][col - 1] : null;
+                    const right = col + 1 < grid[0].length ? grid[row][col + 1] : null;
+                    if ((left && left.char !== '' && grid[row][col].char === '') ||
+                        (right && right.char !== '' && grid[row][col].char === '')) {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        // Place word on the grid
+        function placeWordOnGrid(grid, word, startRow, startCol, direction, wordId) {
+            for (let i = 0; i < word.length; i++) {
+                const row = direction === 'horizontal' ? startRow : startRow + i;
+                const col = direction === 'horizontal' ? startCol + i : startCol;
+                
+                grid[row][col].char = word[i];
+                grid[row][col].wordId = wordId;
+                if (i === 0) {
+                    grid[row][col].isStart = true;
+                }
+            }
+        }
+
+        // Find a valid intersection point
+        function findValidIntersection(grid, wordText, direction, placedWords) {
+            const validPlacements = [];
+            
+            // Check each character of the word for possible intersections
+            for (let charIndex = 0; charIndex < wordText.length; charIndex++) {
+                const char = wordText[charIndex];
+                
+                // Look for this character in existing words
+                for (const placedWord of placedWords) {
+                    const placedWordText = placedWord.word.toUpperCase();
+                    
+                    for (let i = 0; i < placedWordText.length; i++) {
+                        if (placedWordText[i] === char) {
+                            // Found a matching character, check if we can place the new word here
+                            const existingRow = placedWord.direction === 'horizontal' ? 
+                                placedWord.startRow : placedWord.startRow + i;
+                            const existingCol = placedWord.direction === 'horizontal' ? 
+                                placedWord.startCol + i : placedWord.startCol;
+                            
+                            // Calculate where the new word would start
+                            let newStartRow, newStartCol;
+                            if (direction === 'horizontal') {
+                                newStartRow = existingRow;
+                                newStartCol = existingCol - charIndex;
+                            } else {
+                                newStartRow = existingRow - charIndex;
+                                newStartCol = existingCol;
+                            }
+                            
+                            // Check if this placement is valid
+                            if (canPlaceWord(grid, wordText, newStartRow, newStartCol, direction)) {
+                                validPlacements.push({
+                                    startRow: newStartRow,
+                                    startCol: newStartCol,
+                                    score: calculatePlacementScore(grid, wordText, newStartRow, newStartCol, direction)
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Return the best placement (highest score)
+            if (validPlacements.length > 0) {
+                validPlacements.sort((a, b) => b.score - a.score);
+                return validPlacements[0];
+            }
+            
+            return null;
+        }
+
+        // Calculate placement score (prefer more intersections)
+        function calculatePlacementScore(grid, wordText, startRow, startCol, direction) {
+            let score = 0;
+            
+            // Check how many letters would intersect with existing words
+            for (let i = 0; i < wordText.length; i++) {
+                const row = direction === 'horizontal' ? startRow : startRow + i;
+                const col = direction === 'horizontal' ? startCol + i : startCol;
+                
+                if (row >= 0 && row < grid.length && col >= 0 && col < grid[0].length) {
+                    if (grid[row][col].char !== '') {
+                        score += 2; // Bonus for intersections
+                    }
+                }
+            }
+            
+            // Prefer placements closer to center
+            const centerRow = Math.floor(grid.length / 2);
+            const centerCol = Math.floor(grid[0].length / 2);
+            const distanceFromCenter = Math.abs(startRow - centerRow) + Math.abs(startCol - centerCol);
+            score -= distanceFromCenter * 0.1;
+            
+            return score;
+        }
+
+        // Trim grid to remove empty rows and columns
+        function trimGrid(grid, placedWords) {
+            if (placedWords.length === 0) return { grid: grid, words: placedWords, size: grid.length };
+            
+            // Find the bounds of the placed words
+            let minRow = grid.length, maxRow = 0, minCol = grid[0].length, maxCol = 0;
+            
+            placedWords.forEach(word => {
+                for (let i = 0; i < word.length; i++) {
+                    const row = word.direction === 'horizontal' ? word.startRow : word.startRow + i;
+                    const col = word.direction === 'horizontal' ? word.startCol + i : word.startCol;
+                    
+                    minRow = Math.min(minRow, row);
+                    maxRow = Math.max(maxRow, row);
+                    minCol = Math.min(minCol, col);
+                    maxCol = Math.max(maxCol, col);
+                }
+            });
+            
+            // Add padding
+            minRow = Math.max(0, minRow - 1);
+            maxRow = Math.min(grid.length - 1, maxRow + 1);
+            minCol = Math.max(0, minCol - 1);
+            maxCol = Math.min(grid[0].length - 1, maxCol + 1);
+            
+            // Create new trimmed grid
+            const newSize = Math.max(maxRow - minRow + 1, maxCol - minCol + 1);
+            const trimmedGrid = [];
+            
+            for (let i = 0; i < newSize; i++) {
+                trimmedGrid[i] = [];
+                for (let j = 0; j < newSize; j++) {
+                    const originalRow = minRow + i;
+                    const originalCol = minCol + j;
+                    
+                    if (originalRow < grid.length && originalCol < grid[0].length) {
+                        trimmedGrid[i][j] = grid[originalRow][originalCol];
+                    } else {
+                        trimmedGrid[i][j] = { char: '', wordId: null, isStart: false };
+                    }
+                }
+            }
+            
+            // Update word positions
+            const updatedWords = placedWords.map(word => ({
+                ...word,
+                startRow: word.startRow - minRow,
+                startCol: word.startCol - minCol
+            }));
+            
+            return {
+                grid: trimmedGrid,
+                words: updatedWords,
+                size: newSize
+            };
+        }
+
+        // Display the crossword
+        function displayCrossword(crossword) {
+            const gridContainer = document.getElementById('crosswordGrid');
+            const acrossClues = document.getElementById('acrossClues');
+            const downClues = document.getElementById('downClues');
+            
+            // Clear previous content
+            gridContainer.innerHTML = '';
+            acrossClues.innerHTML = '';
+            downClues.innerHTML = '';
+
+            // Create grid
+            const gridElement = document.createElement('div');
+            gridElement.className = 'crossword-grid';
+            
+            for (let i = 0; i < crossword.size; i++) {
+                const row = document.createElement('div');
+                row.className = 'crossword-row';
+                
+                for (let j = 0; j < crossword.size; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'crossword-cell';
+                    
+                    const cellData = crossword.grid[i][j];
+                    
+                    if (cellData.char === '') {
+                        cell.classList.add('black');
+                    } else {
+                        if (cellData.isStart) {
+                            const number = document.createElement('span');
+                            number.style.position = 'absolute';
+                            number.style.top = '2px';
+                            number.style.left = '2px';
+                            number.style.fontSize = '10px';
+                            number.style.color = '#4facfe';
+                            number.style.fontWeight = 'bold';
+                            cell.style.position = 'relative';
+                            cell.appendChild(number);
+                            
+                            // Find word number
+                            const word = crossword.words.find(w => 
+                                w.startRow === i && w.startCol === j
+                            );
+                            if (word) {
+                                number.textContent = crossword.words.indexOf(word) + 1;
+                            }
+                        }
+                        
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.maxLength = 1;
+                        input.dataset.row = i;
+                        input.dataset.col = j;
+                        input.dataset.wordId = cellData.wordId;
+                        input.value = '';
+                        input.placeholder = '';
+                        input.readOnly = false;
+                        
+                        // Event listeners for navigation and highlighting
+                        input.addEventListener('focus', () => {
+                            input.select();
+                            highlightActiveWord(parseInt(input.dataset.row, 10), parseInt(input.dataset.col, 10));
+                        });
+                        
+                        input.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            const row = parseInt(e.target.dataset.row, 10);
+                            const col = parseInt(e.target.dataset.col, 10);
+                            jumpToWordStart(row, col);
+                        });
+                        
+                        // Keyboard behavior
+                        input.addEventListener('input', (e) => {
+                            const value = e.target.value.toUpperCase().replace(/[^A-Z]/g, '');
+                            e.target.value = value;
+                            if (value) {
+                                moveToNextCell(parseInt(e.target.dataset.row, 10), parseInt(e.target.dataset.col, 10), true);
+                            }
+                            updateStats();
+                        });
+                        
+                        input.addEventListener('keydown', (e) => {
+                            const row = parseInt(e.target.dataset.row, 10);
+                            const col = parseInt(e.target.dataset.col, 10);
+                            if (e.key === ' ') {
+                                e.preventDefault();
+                                currentDirection = currentDirection === 'horizontal' ? 'vertical' : 'horizontal';
+                                return;
+                            }
+                            if (e.key === 'Backspace') {
+                                if (e.target.value === '') {
+                                    e.preventDefault();
+                                    moveToNextCell(row, col, false, true);
+                                }
+                                return;
+                            }
+                            if (e.key === 'ArrowRight') { e.preventDefault(); currentDirection = 'horizontal'; moveToNextCell(row, col, true); }
+                            if (e.key === 'ArrowLeft')  { e.preventDefault(); currentDirection = 'horizontal'; moveToNextCell(row, col, false); }
+                            if (e.key === 'ArrowDown')  { e.preventDefault(); currentDirection = 'vertical';   moveToNextCell(row, col, true); }
+                            if (e.key === 'ArrowUp')    { e.preventDefault(); currentDirection = 'vertical';   moveToNextCell(row, col, false); }
+                        });
+                        
+                        cell.appendChild(input);
+                    }
+                    
+                    row.appendChild(cell);
+                }
+                gridElement.appendChild(row);
+            }
+            
+            gridContainer.appendChild(gridElement);
+
+            // Create clues
+            crossword.words.forEach((word, index) => {
+                const clueItem = document.createElement('div');
+                clueItem.className = 'clue-item';
+                
+                const number = document.createElement('div');
+                number.className = 'clue-number';
+                number.textContent = index + 1;
+                
+                const text = document.createElement('div');
+                text.className = 'clue-text';
+                text.textContent = `${word.swedish} (${word.length} letters)`;
+                
+                clueItem.appendChild(number);
+                clueItem.appendChild(text);
+                
+                if (word.direction === 'horizontal') {
+                    acrossClues.appendChild(clueItem);
+                } else {
+                    downClues.appendChild(clueItem);
+                }
+            });
+
+            crosswordData = crossword;
+        }
+        
+        // Navigation helpers
+        function moveToNextCell(row, col, forward = true, clearPrev = false) {
+            if (!crosswordData) return;
+            const [dr, dc] = currentDirection === 'horizontal' ? [0, 1] : [1, 0];
+            let nr = row + (forward ? dr : -dr);
+            let nc = col + (forward ? dc : -dc);
+            while (nr >= 0 && nr < crosswordData.size && nc >= 0 && nc < crosswordData.size) {
+                const next = document.querySelector(`input[data-row="${nr}"][data-col="${nc}"]`);
+                if (next) {
+                    if (clearPrev) {
+                        next.value = '';
+                    }
+                    next.focus();
+                    next.select();
+                    return;
+                }
+                nr += (forward ? dr : -dr);
+                nc += (forward ? dc : -dc);
+            }
+        }
+        
+        // Highlight the active word
+        function highlightActiveWord(row, col) {
+            if (!crosswordData) return;
+            
+            // Clear previous highlights
+            document.querySelectorAll('.crossword-cell').forEach(cell => {
+                cell.classList.remove('active-word');
+            });
+            
+            // Find which word this cell belongs to
+            const activeWord = crosswordData.words.find(word => {
+                for (let i = 0; i < word.length; i++) {
+                    const wordRow = word.direction === 'horizontal' ? word.startRow : word.startRow + i;
+                    const wordCol = word.direction === 'horizontal' ? word.startCol + i : word.startCol;
+                    if (wordRow === row && wordCol === col) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+            
+            if (activeWord) {
+                // Highlight all cells in the active word
+                for (let i = 0; i < activeWord.length; i++) {
+                    const wordRow = activeWord.direction === 'horizontal' ? activeWord.startRow : activeWord.startRow + i;
+                    const wordCol = activeWord.direction === 'horizontal' ? word.startCol + i : word.startCol;
+                    const cell = document.querySelector(`input[data-row="${wordRow}"][data-col="${wordCol}"]`).parentElement;
+                    if (cell) {
+                        cell.classList.add('active-word');
+                    }
+                }
+                
+                // Set current direction to match the word
+                currentDirection = activeWord.direction;
+            }
+        }
+        
+        // Jump to the start of the word
+        function jumpToWordStart(row, col) {
+            if (!crosswordData) return;
+            
+            // Find which word this cell belongs to
+            const activeWord = crosswordData.words.find(word => {
+                for (let i = 0; i < word.length; i++) {
+                    const wordRow = word.direction === 'horizontal' ? word.startRow : word.startRow + i;
+                    const wordCol = word.direction === 'horizontal' ? word.startCol + i : word.startCol;
+                    if (wordRow === row && wordCol === col) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+            
+            if (activeWord) {
+                // Focus on the first cell of the word
+                const startCell = document.querySelector(`input[data-row="${activeWord.startRow}"][data-col="${activeWord.startCol}"]`);
+                if (startCell) {
+                    startCell.focus();
+                    startCell.select();
+                }
+            }
+        }
+
+        // Check answers
+        function checkAnswers() {
+            if (!crosswordData) return;
+            
+            let correct = 0;
+            let total = crosswordData.words.length;
+            
+            crosswordData.words.forEach(word => {
+                let isCorrect = true;
+                const wordText = word.word.toUpperCase();
+                
+                for (let i = 0; i < wordText.length; i++) {
+                    const row = word.direction === 'horizontal' ? word.startRow : word.startRow + i;
+                    const col = word.direction === 'horizontal' ? word.startCol + i : word.startCol;
+                    
+                    const input = document.querySelector(`input[data-row="${row}"][data-col="${col}"]`);
+                    if (input && input.value.toUpperCase() === wordText[i]) {
+                        input.style.color = '#28a745';
+                        input.style.fontWeight = 'bold';
+                    } else {
+                        isCorrect = false;
+                        if (input) {
+                            input.style.color = '#dc3545';
+                        }
+                    }
+                }
+                
+                if (isCorrect) correct++;
+            });
+            
+            updateStats();
+            
+            if (correct === total) {
+                document.getElementById('successMessage').style.display = 'block';
+            }
+        }
+
+        // Update statistics
+        function updateStats() {
+            if (!crosswordData) return;
+            
+            const totalWords = crosswordData.words.length;
+            let completedWords = 0;
+            
+            crosswordData.words.forEach(word => {
+                let isComplete = true;
+                const wordText = word.word.toUpperCase();
+                
+                for (let i = 0; i < wordText.length; i++) {
+                    const row = word.direction === 'horizontal' ? word.startRow : word.startRow + i;
+                    const col = word.direction === 'horizontal' ? word.startCol + i : word.startCol;
+                    
+                    const input = document.querySelector(`input[data-row="${row}"][data-col="${col}"]`);
+                    if (!input || input.value === '') {
+                        isComplete = false;
+                        break;
+                    }
+                }
+                
+                if (isComplete) completedWords++;
+            });
+            
+            const accuracy = totalWords > 0 ? Math.round((completedWords / totalWords) * 100) : 0;
+            
+            document.getElementById('totalWords').textContent = totalWords;
+            document.getElementById('completedWords').textContent = completedWords;
+            document.getElementById('accuracy').textContent = accuracy + '%';
+        }
+
+        // Word management functions
+        function loadCustomWords() {
+            const saved = localStorage.getItem('customWords');
+            if (saved) {
+                const customWords = JSON.parse(saved);
+                vocabulary = [...defaultVocabulary, ...customWords];
+            }
+        }
+
+        function saveCustomWords() {
+            const customWords = vocabulary.filter(word => !defaultVocabulary.includes(word));
+            localStorage.setItem('customWords', JSON.stringify(customWords));
+        }
+
+        function addWord() {
+            const swedishInput = document.getElementById('newSwedish');
+            const englishInput = document.getElementById('newEnglish');
+            
+            const swedish = swedishInput.value.trim();
+            const english = englishInput.value.trim();
+            
+            if (swedish && english) {
+                const newWord = { swedish: swedish, english: english };
+                vocabulary.push(newWord);
+                saveCustomWords();
+                displayCustomWordList();
+                
+                // Clear inputs
+                swedishInput.value = '';
+                englishInput.value = '';
+                
+                // Update word list display
+                displayWordList();
+            }
+        }
+
+        function removeWord(index) {
+            vocabulary.splice(index, 1);
+            saveCustomWords();
+            displayCustomWordList();
+            displayWordList();
+        }
+
+        function displayCustomWordList() {
+            const customWordList = document.getElementById('customWordList');
+            customWordList.innerHTML = '';
+            
+            const customWords = vocabulary.filter(word => !defaultVocabulary.includes(word));
+            
+            if (customWords.length === 0) {
+                customWordList.innerHTML = '<p style="text-align: center; color: #6c757d;">No custom words added yet. Add some words above!</p>';
+                return;
+            }
+            
+            customWords.forEach((word, index) => {
+                const wordCard = document.createElement('div');
+                wordCard.className = 'custom-word-card';
+                
+                const wordInfo = document.createElement('div');
+                wordInfo.className = 'custom-word-info';
+                wordInfo.innerHTML = `
+                    <h4>${word.swedish}</h4>
+                    <p>${word.english}</p>
+                `;
+                
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'remove-btn';
+                removeBtn.textContent = 'Remove';
+                removeBtn.onclick = () => removeWord(vocabulary.indexOf(word));
+                
+                wordCard.appendChild(wordInfo);
+                wordCard.appendChild(removeBtn);
+                customWordList.appendChild(wordCard);
+            });
+        }
+
+        // Initialize the application when page loads
+        window.onload = init;
+    </script>
+</body>
+</html>
